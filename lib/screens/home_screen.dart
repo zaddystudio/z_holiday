@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:add_2_calendar/add_2_calendar.dart';
-import 'package:url_launcher/url_launcher.dart'; // NEW
+import 'package:url_launcher/url_launcher.dart';
 import '../models/holiday_model.dart';
 import '../services/api_service.dart';
 import '../main.dart';
@@ -17,8 +17,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
-  final GlobalKey<ScaffoldState> _scaffoldKey =
-      GlobalKey<ScaffoldState>(); // For opening drawer
+
+  static const Color _darkGreen = Color(0xFF006400);
 
   String _selectedCountryCode = 'NG';
   String _currentYear = DateTime.now().year.toString();
@@ -34,6 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+
   Map<DateTime, List<HolidayModel>> _groupedHolidays = {};
   List<HolidayModel> _culturalFestivals = [];
   bool _isLoading = true;
@@ -48,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchData();
   }
 
-  // --- URL LAUNCHER HELPERS ---
   Future<void> _launchUrl(String url) async {
     if (!await launchUrl(Uri.parse(url))) throw 'Could not launch $url';
   }
@@ -150,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (holiday.exactDate != null) {
       final daysText = _getCountdownText(holiday.exactDate);
       text =
-          "🎉 $daysText until ${holiday.title}! Checked via Naija Holidays App by Zaddy Digital.";
+          "🎉 $daysText until ${holiday.title}! Checked via zHoliday App by Zaddy Digital.";
     }
     Share.share(text);
   }
@@ -166,6 +167,124 @@ class _HomeScreenState extends State<HomeScreen> {
       allDay: true,
     );
     Add2Calendar.addEvent2Cal(event);
+  }
+
+  void _showAboutBottomSheet(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: Colors.white10, width: 1),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade600,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  "Zaddy Digital Solutions",
+                  style: TextStyle(
+                    color: Colors.greenAccent,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "...digitally outstanding",
+                  style: TextStyle(
+                    color: isDarkMode
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade600,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "We build custom apps for different fields and industries. Bring your vision to life.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white70 : Colors.black87,
+                    height: 1.5,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent.shade400,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.language),
+                    label: const Text(
+                      "See Our Recent Apps",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () =>
+                        _launchUrl("https://zaddyhost.top/creatives"),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDarkMode ? Colors.white : Colors.black,
+                      side: BorderSide(
+                        color: isDarkMode
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade300,
+                        width: 2,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    icon: const Icon(Icons.chat_bubble_outline),
+                    label: const Text(
+                      "Chat on WhatsApp",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () => _launchUrl("https://wa.me/2347060633216"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -184,546 +303,555 @@ class _HomeScreenState extends State<HomeScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        key: _scaffoldKey,
-        // --- ARTISTIC ABOUT DRAWER ---
-        drawer: Drawer(
-          backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          child: Column(
-            children: [
-              Container(
-                height: 250,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.green.shade900, Colors.green.shade500],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white24,
-                        child: Icon(
-                          Icons.rocket_launch,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      const Text(
-                        "Zaddy Digital Solutions",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Digitally Outstanding",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: isDarkMode ? const Color(0xFF2C2C2C) : Colors.white,
+          foregroundColor: _darkGreen,
+          elevation: 8,
+          shape: const CircleBorder(),
+          onPressed: () => _showAboutBottomSheet(context),
+          child: const Padding(
+            padding: EdgeInsets.only(top: 2.0),
+            child: Text(
+              'i',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'serif',
+                fontStyle: FontStyle.italic,
               ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(20),
-                  children: [
-                    const Text(
-                      "ABOUT US",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "We build custom apps for different aspects and fields. Simple. Professional. Classic. Resourceful.",
-                      style: TextStyle(fontSize: 15, height: 1.5),
-                    ),
-                    const SizedBox(height: 30),
-                    const Text(
-                      "GET IN TOUCH",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.language, color: Colors.blue),
-                      title: const Text("Recent Portfolios"),
-                      onTap: () =>
-                          _launchUrl("https://zaddyhost.top/creatives"),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.email, color: Colors.red),
-                      title: const Text("hi@zaddyhost.top"),
-                      onTap: () => _launchUrl("mailto:hi@zaddyhost.top"),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.chat, color: Colors.green),
-                      title: const Text("WhatsApp Us"),
-                      onTap: () => _launchUrl("https://wa.me/2347060633216"),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  "v1.0.0 • Made with ❤️ in Nigeria",
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.menu_open_rounded),
-            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-          ),
-          title: const Text(
-            'World Holidays',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () async {
-                List<HolidayModel> allSearchableHolidays = _groupedHolidays
-                    .values
-                    .expand((element) => element)
-                    .toList();
-                final DateTime? selectedSearchDate =
-                    await showSearch<DateTime?>(
-                      context: context,
-                      delegate: HolidaySearchDelegate(allSearchableHolidays),
-                    );
-                if (selectedSearchDate != null) {
-                  setState(() {
-                    _focusedDay = selectedSearchDate;
-                    _selectedDay = selectedSearchDate;
-                    if (selectedSearchDate.year.toString() != _currentYear) {
-                      _currentYear = selectedSearchDate.year.toString();
-                      _fetchData();
-                    }
-                  });
-                }
-              },
-            ),
-            ValueListenableBuilder<ThemeMode>(
-              valueListenable: themeNotifier,
-              builder: (_, ThemeMode currentMode, __) {
-                return IconButton(
-                  icon: Icon(
-                    currentMode == ThemeMode.light
-                        ? Icons.dark_mode
-                        : Icons.light_mode,
-                  ),
-                  onPressed: () {
-                    themeNotifier.value = currentMode == ThemeMode.light
-                        ? ThemeMode.dark
-                        : ThemeMode.light;
-                  },
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedCountryCode,
-                  dropdownColor: isDarkMode
-                      ? Colors.grey.shade900
-                      : Colors.green.shade900,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                  items: _countries.entries.map((entry) {
-                    return DropdownMenuItem<String>(
-                      value: entry.key,
-                      child: Text(entry.value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null && newValue != _selectedCountryCode) {
-                      setState(() => _selectedCountryCode = newValue);
-                      _fetchData();
-                    }
-                  },
+
+        // --- NEW: THE NESTED SCROLL VIEW FOR THE SLIVER HEADER ---
+        body: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverAppBar(
+                // This makes the top bar thick enough to show your image
+                expandedHeight: 220.0,
+                // This ensures your controls never disappear
+                pinned: true,
+                floating: false,
+                backgroundColor: isDarkMode
+                    ? Colors.grey.shade900
+                    : Colors.green.shade800,
+
+                // Your pinned controls:
+                title: const Text(
+                  'World Holidays',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-              ),
-            ),
-          ],
-          bottom: const TabBar(
-            indicatorColor: Colors.orange,
-            indicatorWeight: 4,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            tabs: [
-              Tab(icon: Icon(Icons.public), text: "Global Dates"),
-              Tab(icon: Icon(Icons.festival), text: "Naija Culture"),
-            ],
-          ),
-        ),
-        body: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.green),
-              )
-            : TabBarView(
-                children: [
-                  Column(
-                    children: [
-                      TableCalendar<HolidayModel>(
-                        firstDay: DateTime.utc(2020, 1, 1),
-                        lastDay: DateTime.utc(2030, 12, 31),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) =>
-                            isSameDay(_selectedDay, day),
-                        eventLoader: _getHolidaysForDay,
-                        startingDayOfWeek: StartingDayOfWeek.monday,
-                        calendarStyle: CalendarStyle(
-                          todayDecoration: BoxDecoration(
-                            color: Colors.green.shade400,
-                            shape: BoxShape.circle,
-                          ),
-                          selectedDecoration: BoxDecoration(
-                            color: Colors.green.shade700,
-                            shape: BoxShape.circle,
-                          ),
-                          markerDecoration: const BoxDecoration(
-                            color: Colors.orange,
-                            shape: BoxShape.circle,
-                          ),
-                          defaultTextStyle: TextStyle(
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                          weekendTextStyle: TextStyle(
-                            color: isDarkMode
-                                ? Colors.red.shade300
-                                : Colors.red,
-                          ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () async {
+                      List<HolidayModel> allSearchableHolidays =
+                          _groupedHolidays.values
+                              .expand((element) => element)
+                              .toList();
+                      final DateTime? selectedSearchDate =
+                          await showSearch<DateTime?>(
+                            context: context,
+                            delegate: HolidaySearchDelegate(
+                              allSearchableHolidays,
+                            ),
+                          );
+                      if (selectedSearchDate != null) {
+                        setState(() {
+                          _focusedDay = selectedSearchDate;
+                          _selectedDay = selectedSearchDate;
+                          if (selectedSearchDate.year.toString() !=
+                              _currentYear) {
+                            _currentYear = selectedSearchDate.year.toString();
+                            _fetchData();
+                          }
+                        });
+                      }
+                    },
+                  ),
+                  ValueListenableBuilder<ThemeMode>(
+                    valueListenable: themeNotifier,
+                    builder: (_, ThemeMode currentMode, __) {
+                      return IconButton(
+                        icon: Icon(
+                          currentMode == ThemeMode.light
+                              ? Icons.dark_mode
+                              : Icons.light_mode,
                         ),
-                        headerStyle: HeaderStyle(
-                          titleTextStyle: TextStyle(
-                            color: isDarkMode ? Colors.white : Colors.black,
-                            fontSize: 16,
-                          ),
-                          formatButtonVisible: false,
-                        ),
-                        onDaySelected: (selectedDay, focusedDay) {
-                          setState(() {
-                            _selectedDay = selectedDay;
-                            _focusedDay = focusedDay;
-                          });
+                        onPressed: () {
+                          themeNotifier.value = currentMode == ThemeMode.light
+                              ? ThemeMode.dark
+                              : ThemeMode.light;
                         },
-                        onPageChanged: (focusedDay) {
-                          _focusedDay = focusedDay;
-                          if (focusedDay.year.toString() != _currentYear) {
-                            setState(() {
-                              _currentYear = focusedDay.year.toString();
-                            });
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedCountryCode,
+                        dropdownColor: isDarkMode
+                            ? Colors.grey.shade900
+                            : Colors.green.shade900,
+                        icon: const Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.white,
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        items: _countries.entries.map((entry) {
+                          return DropdownMenuItem<String>(
+                            value: entry.key,
+                            child: Text(entry.value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null &&
+                              newValue != _selectedCountryCode) {
+                            setState(() => _selectedCountryCode = newValue);
                             _fetchData();
                           }
                         },
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Favorites Only",
-                              style: TextStyle(
-                                color: isDarkMode
-                                    ? Colors.white70
-                                    : Colors.black54,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Switch(
-                              value: _showOnlyFavorites,
-                              activeColor: Colors.red,
-                              onChanged: (val) =>
-                                  setState(() => _showOnlyFavorites = val),
-                            ),
-                          ],
+                    ),
+                  ),
+                ],
+
+                // --- THE BEAUTIFUL IMAGE BANNER ---
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Ensure you put the generated banner.jpg in assets/images/ !
+                      Image.asset(
+                        'assets/images/banner.jpg',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: _darkGreen,
+                        ), // Fallback if image missing
+                      ),
+                      // A dark gradient so your text and icons pop
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
+                          ),
                         ),
                       ),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: selectedHolidays.isEmpty
-                            ? Center(
-                                child: Text(
-                                  _showOnlyFavorites
-                                      ? "No favorites on this date."
-                                      : "No official holidays on this date.",
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              )
-                            : ListView.builder(
-                                itemCount: selectedHolidays.length,
-                                itemBuilder: (context, index) {
-                                  final holiday = selectedHolidays[index];
-                                  final holidayId =
-                                      "${holiday.title}_${holiday.exactDate?.toIso8601String() ?? holiday.dateRule}";
-                                  final isFav = _favorites.contains(holidayId);
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Column(
-                                        children: [
-                                          ListTile(
-                                            leading: Icon(
-                                              Icons.flag,
-                                              color: Colors.green.shade500,
-                                            ),
-                                            title: Text(
-                                              holiday.title,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            subtitle: Text(holiday.description),
-                                          ),
-                                          const Divider(height: 1),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12.0,
-                                              vertical: 4.0,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                holiday.exactDate != null
-                                                    ? Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 10,
-                                                              vertical: 6,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              _getCountdownColor(
-                                                                holiday
-                                                                    .exactDate,
-                                                              ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                        ),
-                                                        child: Text(
-                                                          _getCountdownText(
-                                                            holiday.exactDate,
-                                                          ),
-                                                          style:
-                                                              const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                        ),
-                                                      )
-                                                    : const SizedBox.shrink(),
-                                                Row(
-                                                  children: [
-                                                    IconButton(
-                                                      icon: Icon(
-                                                        isFav
-                                                            ? Icons.favorite
-                                                            : Icons
-                                                                  .favorite_border,
-                                                        color: Colors.red,
-                                                      ),
-                                                      onPressed: () =>
-                                                          _toggleFavorite(
-                                                            holidayId,
-                                                          ),
-                                                    ),
-                                                    if (holiday.exactDate !=
-                                                        null)
-                                                      IconButton(
-                                                        icon: const Icon(
-                                                          Icons.edit_calendar,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        onPressed: () =>
-                                                            _addToNativeCalendar(
-                                                              holiday,
-                                                            ),
-                                                      ),
-                                                    IconButton(
-                                                      icon: const Icon(
-                                                        Icons.share,
-                                                        color: Colors.green,
-                                                      ),
-                                                      onPressed: () =>
-                                                          _shareHoliday(
-                                                            holiday,
-                                                          ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                      // The central zHoliday logo text!
+                      const Center(
+                        child: Text(
+                          "zHoliday",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.5,
+                          ),
+                        ),
                       ),
                     ],
                   ),
+                ),
 
-                  // TAB 2: NIGERIAN CULTURE
-                  ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _culturalFestivals.length,
-                    itemBuilder: (context, index) {
-                      final festival = _culturalFestivals[index];
-                      final holidayId =
-                          "${festival.title}_${festival.dateRule}";
-                      final isFav = _favorites.contains(holidayId);
-                      return Card(
-                        elevation: 4,
-                        margin: const EdgeInsets.only(bottom: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                // The TabBar stays pinned right under the app bar!
+                bottom: const TabBar(
+                  indicatorColor: Colors.orange,
+                  indicatorWeight: 4,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white60,
+                  tabs: [
+                    Tab(icon: Icon(Icons.public), text: "Global Dates"),
+                    Tab(icon: Icon(Icons.festival), text: "Naija Culture"),
+                  ],
+                ),
+              ),
+            ];
+          },
+
+          // --- TAB VIEWS ---
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.green),
+                )
+              : TabBarView(
+                  children: [
+                    // TAB 1: CALENDAR & DATES
+                    // Changed from Column to ListView so the whole page scrolls smoothly!
+                    ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        TableCalendar<HolidayModel>(
+                          firstDay: DateTime.utc(2020, 1, 1),
+                          lastDay: DateTime.utc(2030, 12, 31),
+                          focusedDay: _focusedDay,
+                          selectedDayPredicate: (day) =>
+                              isSameDay(_selectedDay, day),
+                          calendarFormat: _calendarFormat,
+                          onFormatChanged: (format) {
+                            if (_calendarFormat != format) {
+                              setState(() => _calendarFormat = format);
+                            }
+                          },
+                          availableCalendarFormats: const {
+                            CalendarFormat.month: 'Month',
+                            CalendarFormat.twoWeeks: '2 Weeks',
+                            CalendarFormat.week: 'Week',
+                          },
+                          eventLoader: _getHolidaysForDay,
+                          startingDayOfWeek: StartingDayOfWeek.monday,
+                          calendarStyle: CalendarStyle(
+                            todayDecoration: BoxDecoration(
+                              color: Colors.green.shade400,
+                              shape: BoxShape.circle,
+                            ),
+                            selectedDecoration: BoxDecoration(
+                              color: Colors.green.shade700,
+                              shape: BoxShape.circle,
+                            ),
+                            markerDecoration: const BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                            defaultTextStyle: TextStyle(
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
+                            weekendTextStyle: TextStyle(
+                              color: isDarkMode
+                                  ? Colors.red.shade300
+                                  : Colors.red,
+                            ),
+                          ),
+                          headerStyle: HeaderStyle(
+                            titleTextStyle: TextStyle(
+                              color: isDarkMode ? Colors.white : Colors.black,
+                              fontSize: 16,
+                            ),
+                            formatButtonVisible: true,
+                            formatButtonDecoration: BoxDecoration(
+                              border: Border.all(color: Colors.green),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            formatButtonTextStyle: TextStyle(
+                              color: isDarkMode
+                                  ? Colors.greenAccent
+                                  : Colors.green.shade800,
+                            ),
+                          ),
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              _selectedDay = selectedDay;
+                              _focusedDay = focusedDay;
+                            });
+                          },
+                          onPageChanged: (focusedDay) {
+                            _focusedDay = focusedDay;
+                            if (focusedDay.year.toString() != _currentYear) {
+                              setState(
+                                () => _currentYear = focusedDay.year.toString(),
+                              );
+                              _fetchData();
+                            }
+                          },
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (festival.imagePath != null)
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
-                                ),
-                                child: Image.asset(
-                                  festival.imagePath!,
-                                  height: 150,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        height: 150,
-                                        color: isDarkMode
-                                            ? Colors.grey.shade800
-                                            : Colors.grey.shade300,
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.image_not_supported,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Favorites Only",
+                                style: TextStyle(
+                                  color: isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black54,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          festival.title,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: isDarkMode
-                                                ? Colors.green.shade300
-                                                : Colors.green.shade900,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          isFav
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: Colors.red,
-                                        ),
-                                        onPressed: () =>
-                                            _toggleFavorite(holidayId),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.calendar_today,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        festival.dateRule ??
-                                            'Date varies annually',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    festival.description,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: ElevatedButton.icon(
-                                      onPressed: () => _shareHoliday(festival),
-                                      icon: const Icon(Icons.share, size: 18),
-                                      label: const Text("Share"),
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        backgroundColor: Colors.green.shade700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              Switch(
+                                value: _showOnlyFavorites,
+                                activeColor: Colors.red,
+                                onChanged: (val) =>
+                                    setState(() => _showOnlyFavorites = val),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(height: 1),
+
+                        // Holiday List attached below the calendar
+                        if (selectedHolidays.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: Center(
+                              child: Text(
+                                _showOnlyFavorites
+                                    ? "No favorites on this date."
+                                    : "No official holidays on this date.",
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                          )
+                        else
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap:
+                                true, // Crucial for embedding in another ListView!
+                            physics:
+                                const NeverScrollableScrollPhysics(), // Scroll handled by parent
+                            itemCount: selectedHolidays.length,
+                            itemBuilder: (context, index) {
+                              final holiday = selectedHolidays[index];
+                              final holidayId =
+                                  "${holiday.title}_${holiday.exactDate?.toIso8601String() ?? holiday.dateRule}";
+                              final isFav = _favorites.contains(holidayId);
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.flag,
+                                          color: Colors.green.shade500,
+                                        ),
+                                        title: Text(
+                                          holiday.title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        subtitle: Text(holiday.description),
+                                      ),
+                                      const Divider(height: 1),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 4.0,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            holiday.exactDate != null
+                                                ? Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: _getCountdownColor(
+                                                        holiday.exactDate,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      _getCountdownText(
+                                                        holiday.exactDate,
+                                                      ),
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : const SizedBox.shrink(),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    isFav
+                                                        ? Icons.favorite
+                                                        : Icons.favorite_border,
+                                                    color: Colors.red,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _toggleFavorite(
+                                                        holidayId,
+                                                      ),
+                                                ),
+                                                if (holiday.exactDate != null)
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit_calendar,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    onPressed: () =>
+                                                        _addToNativeCalendar(
+                                                          holiday,
+                                                        ),
+                                                  ),
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.share,
+                                                    color: Colors.green,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _shareHoliday(holiday),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+
+                    // TAB 2: NIGERIAN CULTURE
+                    ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _culturalFestivals.length,
+                      itemBuilder: (context, index) {
+                        final festival = _culturalFestivals[index];
+                        final holidayId =
+                            "${festival.title}_${festival.dateRule}";
+                        final isFav = _favorites.contains(holidayId);
+                        return Card(
+                          elevation: 4,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (festival.imagePath != null)
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
+                                  ),
+                                  child: Image.asset(
+                                    festival.imagePath!,
+                                    height: 150,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              height: 150,
+                                              color: isDarkMode
+                                                  ? Colors.grey.shade800
+                                                  : Colors.grey.shade300,
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                  ),
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            festival.title,
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: isDarkMode
+                                                  ? Colors.green.shade300
+                                                  : Colors.green.shade900,
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            isFav
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () =>
+                                              _toggleFavorite(holidayId),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today,
+                                          size: 18,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          festival.dateRule ??
+                                              'Date varies annually',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      festival.description,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () =>
+                                            _shareHoliday(festival),
+                                        icon: const Icon(Icons.share, size: 18),
+                                        label: const Text("Share"),
+                                        style: ElevatedButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          backgroundColor:
+                                              Colors.green.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
