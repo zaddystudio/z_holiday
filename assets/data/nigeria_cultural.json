@@ -1,0 +1,53 @@
+[
+  {
+    "id": "ojude_oba",
+    "title": "Ojude Oba Festival",
+    "category": "Cultural",
+    "region": "Ogun State (Ijebu)",
+    "date_rule": "3rd day of Eid-el-Kabir",
+    "description": "A spectacular Yoruba festival held in Ijebu-Ode. It is a colorful, high-fashion parade of age-groups paying homage to the Awujale. Expect majestic horses, rich Aso-Oke, and heavy celebration.",
+    "is_public_holiday": false,
+    "image_path": "assets/images/ojude_oba.jpg"
+  },
+  {
+    "id": "new_yam_iri_ji",
+    "title": "New Yam Festival (Iri Ji)",
+    "category": "Traditional",
+    "region": "South-East (Igbo)",
+    "date_rule": "Usually August to September",
+    "description": "An annual cultural festival by the Igbo people held at the end of the rainy season to thank the gods for a good harvest. Roasted yam and palm oil are shared, marking the beginning of the new harvest cycle.",
+    "is_public_holiday": false,
+    "image_path": "assets/images/new_yam.jpg"
+  },
+  {
+    "id": "osun_osogbo",
+    "title": "Osun-Osogbo Festival",
+    "category": "Religious / Cultural",
+    "region": "Osun State",
+    "date_rule": "August (Lasts two weeks)",
+    "description": "Held at the sacred Osun grove (a UNESCO World Heritage site). It celebrates the river goddess Osun. The grand finale features the Arugba (calabash carrier) walking to the river, surrounded by thousands of devotees and tourists.",
+    "is_public_holiday": true,
+    "image_path": "assets/images/osun_osogbo.jpg"
+  },
+  {
+    "id": "argungu_fishing",
+    "title": "Argungu Fishing Festival",
+    "category": "Cultural",
+    "region": "Kebbi State",
+    "date_rule": "Late February or March",
+    "description": "A massive four-day festival in the North-Western part of Nigeria. Thousands of fishermen race into the Matan Fada river with hand nets and gourds to catch the largest fish.",
+    "is_public_holiday": false,
+    "image_path": "assets/images/argungu.jpg"
+  },
+  {
+    "id": "calabar_carnival",
+    "title": "Calabar Carnival",
+    "category": "Carnival",
+    "region": "Cross River State",
+    "date_rule": "December 1st - 31st (Peak on Dec 28)",
+    "description": "Dubbed 'Africa's Biggest Street Party'. It features massive costumed bands, floats, and musical performances throughout December, turning Calabar into a massive tourist hub.",
+    "is_public_holiday": false,
+    "image_path": "assets/images/calabar.jpg"
+  }
+]
+

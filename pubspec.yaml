@@ -1,0 +1,40 @@
+name: zholiday
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.6.0
+  table_calendar: ^3.2.0
+  shared_preferences: ^2.5.4
+  share_plus: ^12.0.1
+  add_2_calendar: ^3.0.1
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/data/nigeria_cultural.json
+    - assets/images/
